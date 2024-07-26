@@ -56,11 +56,11 @@ jobs:
       - name: Install Deps
         run: yarn install --immutable
 
-      - name: Run Prepare
-        run: yarn dev:prepare
-
       - name: Build Package
         run: yarn build
 
       - name: Run Linter
         run: yarn lint
+
+      - name: Run Test
+        run: yarn coverage
