@@ -4,6 +4,10 @@ type Matcher<T> = (value: T | undefined) => boolean | Promise<boolean>
 
 type UnWatch = () => void
 
+interface WatchOptions {
+  immediate?: boolean,
+}
+
 export interface SRef <T> {
   /**
    * The value
@@ -13,7 +17,7 @@ export interface SRef <T> {
    * Add on change listener
    * @param fn on change handler
    */
-  watch: (fn: WatchHandler<T>) => UnWatch,
+  watch: (fn: WatchHandler<T>, opts?: WatchOptions) => UnWatch,
   /**
    * Wait until value match
    * @param matcher
@@ -50,7 +54,7 @@ export interface SRef <T> {
 function sRef<T = any> (): SRef<T | undefined>
 function sRef<T = any> (initialValue: T): SRef<T>
 function sRef<T> (initialValue?: T): SRef<T | undefined> {
-  const watcher = new Set<WatchHandler<T>>()
+  const watchers = new Set<WatchHandler<T>>()
 
   let value: T | undefined = initialValue
 
@@ -63,30 +67,33 @@ function sRef<T> (initialValue?: T): SRef<T | undefined> {
       value = newValue
 
       // emit on-change
-      for (const emit of watcher)
+      for (const emit of watchers)
         void emit(newValue)
     },
 
-    watch (fn: WatchHandler<T>): UnWatch {
-      watcher.add(fn)
+    watch (fn, opts = {}): UnWatch {
+      watchers.add(fn)
+
+      if (opts.immediate)
+        void fn(value)
 
       return () => {
-        watcher.delete(fn)
+        watchers.delete(fn)
       }
     },
 
-    async toMatch (matcher: Matcher<T>) {
+    async toMatch (matcher) {
       return await new Promise<void>((resolve) => {
         const unWatch = this.watch(async (value) => {
           if (await matcher(value)) {
             unWatch()
             resolve()
           }
-        })
+        }, { immediate: true })
       })
     },
 
-    async toBe (expectValue: T | undefined) {
+    async toBe (expectValue) {
       return await this.toMatch((value) => value === expectValue)
     },
   }
