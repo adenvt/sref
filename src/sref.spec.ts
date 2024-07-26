@@ -5,10 +5,11 @@ import {
   expect,
 } from 'vitest'
 import sRef from './sref'
-import { delay } from 'nanodelay'
+
+const nextTick = async () => await new Promise((resolve) => setTimeout(resolve))
 
 describe('.watch()', () => {
-  it('should able value changed', () => {
+  it('should able to watch value changed', () => {
     const count = sRef(0)
     const log   = vi.fn()
 
@@ -20,6 +21,24 @@ describe('.watch()', () => {
 
     expect(log).toBeCalledTimes(1)
     expect(log).toBeCalledWith(5, 0, 5)
+  })
+
+  it('should not trigger change when set with same value', () => {
+    const count = sRef(0)
+    const log   = vi.fn()
+
+    count.watch((value, oldValue) => {
+      log(value, oldValue, count.value)
+    })
+
+    count.value = 5
+
+    expect(log).toBeCalledTimes(1)
+    expect(log).toBeCalledWith(5, 0, 5)
+
+    count.value = 5
+
+    expect(log).toBeCalledTimes(1)
   })
 
   it('should able to unwatch', () => {
@@ -37,7 +56,7 @@ describe('.watch()', () => {
     expect(log).not.toBeCalled()
   })
 
-  it('should emit changed if immidiate set to true', () => {
+  it('should emit changed if immediate set to true', () => {
     const count = sRef(0)
     const log   = vi.fn()
 
@@ -56,25 +75,25 @@ describe('.toBe()', () => {
     const match = sRef(false)
 
     count.toBe(2).then(() => { match.value = true })
-    await delay(0)
+    await nextTick()
 
     count.value++
-    await delay(0)
+    await nextTick()
 
     expect(match.value).toBe(false)
 
     count.value++
-    await delay(0)
+    await nextTick()
 
     expect(match.value).toBe(true)
   })
 
-  it('should resolve immidiately if current value match expected value', async () => {
+  it('should resolve immediately if current value match expected value', async () => {
     const count = sRef(5)
     const match = sRef(false)
 
     count.toBe(5).then(() => { match.value = true })
-    await delay(0)
+    await nextTick()
 
     expect(match.value).toBe(true)
   })

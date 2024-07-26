@@ -3935,13 +3935,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanodelay@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "nanodelay@npm:2.0.2"
-  checksum: 10c0/39c31a412209cf63507a2800e345bf72491630e93526b6e8bd5db8e8f7cc6485e7ae8f6890f8dec5ab9089febe8193b379fc2cf9605b1c439af4e789199dd7e2
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.7":
   version: 3.3.7
   resolution: "nanoid@npm:3.3.7"
@@ -4846,7 +4839,6 @@ __metadata:
     eslint-plugin-unicorn: "npm:48.0.1"
     eslint-plugin-varspacing: "npm:1.2.2"
     eslint-plugin-vue: "npm:9.23.0"
-    nanodelay: "npm:^2.0.2"
     typescript: "npm:5.4.5"
     vite: "npm:^5.3.5"
     vite-plugin-dts: "npm:^4.0.0-beta.1"

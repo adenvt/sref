@@ -6,6 +6,7 @@
   "type": "module",
   "main": "./dist/sref.umd.cjs",
   "module": "./dist/sref.js",
+  "types": "./dist/sref.d.ts",
   "exports": {
     ".": {
       "require": "./dist/sref.umd.cjs",
@@ -46,10 +47,13 @@
     "eslint-plugin-unicorn": "48.0.1",
     "eslint-plugin-varspacing": "1.2.2",
     "eslint-plugin-vue": "9.23.0",
-    "nanodelay": "^2.0.2",
     "typescript": "5.4.5",
     "vite": "^5.3.5",
     "vite-plugin-dts": "^4.0.0-beta.1",
     "vitest": "^2.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adenvt/sref.git"
   }
 }

@@ -57,7 +57,8 @@ function sRef<T = any> (initialValue: T): SRef<T>
 function sRef<T> (initialValue?: T): SRef<T | undefined> {
   const watchers = new Set<WatchHandler<T>>()
 
-  let value: T = initialValue as T
+  let value    = initialValue as T
+  let oldValue = value
 
   return {
     get value () {
@@ -65,13 +66,14 @@ function sRef<T> (initialValue?: T): SRef<T | undefined> {
     },
 
     set value (newValue) {
-      const oldValue = value
+      if (value !== newValue) {
+        value = newValue
 
-      value = newValue
+        for (const emit of watchers)
+          void emit(value, oldValue)
 
-      // emit on-change
-      for (const emit of watchers)
-        void emit(value, oldValue)
+        oldValue = value
+      }
     },
 
     watch (fn, opts = {}): UnWatch {
