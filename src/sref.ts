@@ -1,6 +1,6 @@
-type WatchHandler<T> = (value: T) => void | Promise<void>
+type WatchHandler<T> = (value: T, oldValue?: T) => void | Promise<void>
 
-type Matcher<T> = (value: T | undefined) => boolean | Promise<boolean>
+type Matcher<T> = (value: T, oldValue?: T) => boolean | Promise<boolean>
 
 type UnWatch = () => void
 
@@ -31,44 +31,47 @@ export interface SRef <T> {
 }
 
 /**
- * Reactive variable
+ * Super small, bare minimum reactive variable
  *
  * @param initialValue initial value
  * @example
  *
- * const isBusy = sRef(false)
+ * const data    = sRef()
+ * const isReady = sRef(false)
  *
- * function onClick () {
- *    // Wait other tobe done
- *    if (isBusy.value)
- *      await isBusy.toBe(false)
+ * fetch('https://jsonplaceholder.typicode.com/todos/1')
+ *   .then((r) => r.json())
+ *   .then((json) => {
+ *     data.value    = json
+ *     isReady.value = true
+ *   })
  *
- *    isBusy.value = true
+ * ;(async () => {
+ *   await isReady.toBe(true)
  *
- *    // Heavy async function
- *    setTimeout(() => {
- *      isBusy.value = false
- *    },5000)
- * }
+ *   console.log(data.value) // data is now ready!
+ * })()
  */
 function sRef<T = any> (): SRef<T | undefined>
 function sRef<T = any> (initialValue: T): SRef<T>
 function sRef<T> (initialValue?: T): SRef<T | undefined> {
   const watchers = new Set<WatchHandler<T>>()
 
-  let value: T | undefined = initialValue
+  let value: T = initialValue as T
 
   return {
-    get value (): T | undefined {
+    get value () {
       return value
     },
 
-    set value (newValue: T) {
+    set value (newValue) {
+      const oldValue = value
+
       value = newValue
 
       // emit on-change
       for (const emit of watchers)
-        void emit(newValue)
+        void emit(value, oldValue)
     },
 
     watch (fn, opts = {}): UnWatch {
@@ -84,8 +87,8 @@ function sRef<T> (initialValue?: T): SRef<T | undefined> {
 
     async toMatch (matcher) {
       return await new Promise<void>((resolve) => {
-        const unWatch = this.watch(async (value) => {
-          if (await matcher(value)) {
+        const unWatch = this.watch(async (value, oldValue) => {
+          if (await matcher(value, oldValue)) {
             unWatch()
             resolve()
           }

@@ -23,7 +23,7 @@ it('should able watch & unwatch value changed', () => {
 
   expect(isLoading.value).toBe(true)
   expect(onChange).toBeCalledTimes(1)
-  expect(onChange).toBeCalledWith(true)
+  expect(onChange).toBeCalledWith(true, false)
 
   unWatch()
 
