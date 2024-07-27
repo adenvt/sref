@@ -2,7 +2,7 @@
   "name": "sref",
   "packageManager": "yarn@4.2.2",
   "description": "Super small, bare minimum reactive variable",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/sref.umd.cjs",
   "module": "./dist/sref.js",
