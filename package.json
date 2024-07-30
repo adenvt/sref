@@ -46,7 +46,7 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-unicorn": "48.0.1",
     "eslint-plugin-varspacing": "1.2.2",
-    "eslint-plugin-vue": "9.23.0",
+    "eslint-plugin-vue": "9.27.0",
     "typescript": "5.4.5",
     "vite": "^5.3.5",
     "vite-plugin-dts": "^4.0.0-beta.1",
