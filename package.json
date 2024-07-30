@@ -1,6 +1,6 @@
 {
   "name": "sref",
-  "packageManager": "yarn@4.2.2",
+  "packageManager": "yarn@4.3.1",
   "description": "Super small, bare minimum reactive variable",
   "version": "1.0.1",
   "type": "module",
