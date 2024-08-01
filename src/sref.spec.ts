@@ -98,3 +98,20 @@ describe('.toBe()', () => {
     expect(match.value).toBe(true)
   })
 })
+
+describe('.not', () => {
+  it('should resolve if value not match', async () => {
+    const count = sRef(0)
+    const match = sRef(false)
+
+    count.not.toBe(0).then(() => { match.value = true })
+    await nextTick()
+
+    expect(match.value).toBe(false)
+
+    count.value++
+    await nextTick()
+
+    expect(match.value).toBe(true)
+  })
+})
