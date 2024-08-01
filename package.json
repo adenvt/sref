@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@privyid/eslint-config-persona": "^1.0.0-rc.7",
-    "@types/eslint": "^8",
+    "@types/eslint": "^9.0.0",
     "@types/node": "^20.14.12",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
