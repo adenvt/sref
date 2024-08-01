@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/promise-function-async */
+type Watch<T> = (fn: WatchHandler<T>, opts?: WatchOptions) => UnWatch
+
 type WatchHandler<T> = (value: T, oldValue?: T) => void | Promise<void>
 
 type Matcher<T> = (value: T, oldValue?: T) => boolean | Promise<boolean>
@@ -8,16 +11,7 @@ interface WatchOptions {
   immediate?: boolean,
 }
 
-export interface SRef <T> {
-  /**
-   * The value
-   */
-  value: T,
-  /**
-   * Add on change listener
-   * @param fn on change handler
-   */
-  watch: (fn: WatchHandler<T>, opts?: WatchOptions) => UnWatch,
+interface SMatch<T> {
   /**
    * Wait until value match
    * @param matcher
@@ -28,6 +22,38 @@ export interface SRef <T> {
    * @param expectValue expected value
    */
   toBe: (expectValue: T) => Promise<void>,
+}
+
+function sMatch<T = any> (watch: Watch<T>, isNot = false): SMatch<T> {
+  return Object.freeze<SMatch<T>>({
+    toMatch (matcher) {
+      return new Promise<void>((resolve) => {
+        const unWatch = watch(async (value, oldValue) => {
+          if (await matcher(value, oldValue) !== isNot) {
+            unWatch()
+            resolve()
+          }
+        }, { immediate: true })
+      })
+    },
+    toBe (expectValue) {
+      return this.toMatch((value) => value === expectValue)
+    },
+  })
+}
+
+export interface SRef <T> extends SMatch<T> {
+  /**
+   * The value
+   */
+  value: T,
+  /**
+   * Add on change listener
+   * @param fn on change handler
+   */
+  watch: (fn: WatchHandler<T>, opts?: WatchOptions) => UnWatch,
+
+  get not (): SMatch<T>,
 }
 
 /**
@@ -60,7 +86,21 @@ function sRef<T> (initialValue?: T): SRef<T | undefined> {
   let value    = initialValue as T
   let oldValue = value
 
-  return {
+  const watch = (fn: WatchHandler<T>, opts: WatchOptions = {}): UnWatch => {
+    watchers.add(fn)
+
+    if (opts.immediate)
+      void fn(value)
+
+    return () => {
+      watchers.delete(fn)
+    }
+  }
+
+  const match    = sMatch<any>(watch)
+  const notMatch = sMatch<any>(watch, true)
+
+  return Object.freeze<SRef<T | undefined>>({
     get value () {
       return value
     },
@@ -76,32 +116,13 @@ function sRef<T> (initialValue?: T): SRef<T | undefined> {
       }
     },
 
-    watch (fn, opts = {}): UnWatch {
-      watchers.add(fn)
+    watch,
+    ...match,
 
-      if (opts.immediate)
-        void fn(value)
-
-      return () => {
-        watchers.delete(fn)
-      }
+    get not () {
+      return notMatch
     },
-
-    async toMatch (matcher) {
-      return await new Promise<void>((resolve) => {
-        const unWatch = this.watch(async (value, oldValue) => {
-          if (await matcher(value, oldValue)) {
-            unWatch()
-            resolve()
-          }
-        }, { immediate: true })
-      })
-    },
-
-    async toBe (expectValue) {
-      return await this.toMatch((value) => value === expectValue)
-    },
-  }
+  })
 }
 
 export default sRef
